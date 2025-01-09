@@ -1,0 +1,55 @@
+{
+  "name": "eduflow",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "prepare": "husky install",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
+    "prisma:studio": "prisma studio",
+    "setup": "npm install && npm run prisma:generate && npm run prisma:push",
+    "dev:local": "npm run setup && npm run dev"
+  },
+  "dependencies": {
+    "@ant-design/charts": "^2.0.0",
+    "@ant-design/icons": "^5.0.0",
+    "@auth/prisma-adapter": "^1.0.0",
+    "@prisma/client": "^5.0.0",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@vercel/analytics": "^1.0.0",
+    "antd": "^5.0.0",
+    "clsx": "^2.0.0",
+    "next": "^14.0.0",
+    "next-auth": "^4.0.0",
+    "pino": "^8.0.0",
+    "pino-http-send": "^0.4.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "tailwindcss": "^3.0.0",
+    "typescript": "^5.0.0",
+    "zustand": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/pino": "^7.0.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "14.0.0",
+    "husky": "^8.0.0",
+    "lint-staged": "^15.0.0",
+    "prisma": "^5.0.0",
+    "ts-node": "^10.9.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  }
+}
