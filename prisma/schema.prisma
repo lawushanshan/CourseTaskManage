@@ -7,6 +7,36 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// 课程难度等级
+enum Level {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+// 课程状态
+enum Status {
+  DRAFT       // 草稿
+  PUBLISHED   // 已发布
+  ARCHIVED    // 已归档
+}
+
+// 通知类型
+enum NotificationType {
+  SYSTEM
+  COURSE
+  TASK
+  COMMENT
+  RATING
+}
+
+// 用户角色
+enum Role {
+  ADMIN
+  TEACHER
+  STUDENT
+}
+
 model User {
   id              String    @id @default(cuid())
   name            String
@@ -21,6 +51,12 @@ model User {
   ratings         Rating[]
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  completedTasks    TaskCompletion[]
+  completedCourses  CourseCompletion[]
+  studentCourses    StudentCourse[]
+  systemLogs        SystemLog[]
+  notifications     Notification[]
+  stepCompletions   StepCompletion[]
 }
 
 model Course {
@@ -39,8 +75,8 @@ model Course {
   ratings     Rating[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-
-  @@index([teacherId])
+  completions CourseCompletion[]
+  studentCourses StudentCourse[]
 }
 
 model Task {
@@ -57,6 +93,7 @@ model Task {
   steps                Step[]
   comments             Comment[]
   ratings              Rating[]
+  completions          TaskCompletion[]
 
   @@map("tasks")
 }
@@ -75,6 +112,7 @@ model Step {
   task        Task     @relation(fields: [taskId], references: [id])
   completions StepCompletion[]
   comments    Comment[]
+  completedBy User[]   @relation("CompletedSteps")
 
   @@map("steps")
 }
@@ -88,8 +126,8 @@ model StudentCourse {
   joinedAt          DateTime @default(now())
 
   // Relations
-  student           User     @relation(fields: [studentId], references: [id])
-  course            Course   @relation(fields: [courseId], references: [id])
+  student           User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course            Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, courseId])
   @@map("student_courses")
@@ -102,7 +140,7 @@ model StepCompletion {
   completedAt DateTime @default(now())
 
   // Relations
-  student   User     @relation(fields: [studentId], references: [id])
+  student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
   step      Step     @relation(fields: [stepId], references: [id])
 
   @@unique([studentId, stepId])
@@ -160,18 +198,6 @@ model Rating {
   @@map("ratings")
 }
 
-enum Role {
-  ADMIN
-  TEACHER
-  STUDENT
-}
-
-enum CourseStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
-}
-
 enum StudentCourseStatus {
   IN_PROGRESS
   COMPLETED
@@ -210,7 +236,7 @@ model SystemLog {
   data      Json?
   timestamp DateTime
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([timestamp])
   @@index([level])
@@ -240,16 +266,42 @@ model Notification {
   createdAt DateTime @default(now())
 
   // Relations
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([createdAt])
 }
 
-enum NotificationType {
-  SYSTEM
-  COURSE
-  TASK
-  COMMENT
-  RATING
+model TaskCompletion {
+  id          String   @id @default(cuid())
+  studentId   String
+  taskId      String
+  completedAt DateTime @default(now())
+  
+  // Relations
+  student     User     @relation(fields: [studentId], references: [id])
+  task        Task     @relation(fields: [taskId], references: [id])
+
+  @@unique([studentId, taskId])
+  @@index([studentId])
+  @@index([taskId])
+  @@map("task_completions")
+}
+
+model CourseCompletion {
+  id          String   @id @default(cuid())
+  studentId   String
+  courseId    String
+  completedAt DateTime @default(now())
+  grade       Float?   // 可选的课程评分
+  feedback    String?  // 可选的完成反馈
+  
+  // Relations  
+  student     User     @relation(fields: [studentId], references: [id])
+  course      Course   @relation(fields: [courseId], references: [id])
+
+  @@unique([studentId, courseId])
+  @@index([studentId])
+  @@index([courseId])
+  @@map("course_completions")
 } 

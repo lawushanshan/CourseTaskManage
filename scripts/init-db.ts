@@ -1,22 +1,22 @@
-import { PrismaClient } from '@prisma/client'
-import { hash } from 'bcryptjs'
+const { PrismaClient } = require('@prisma/client');
+const { hash } = require('bcryptjs');
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
   try {
     // 创建管理员用户
-    const adminPassword = await hash('admin123', 12)
+    const adminPassword = await hash('admin123', 12);
     const admin = await prisma.user.upsert({
       where: { email: 'admin@eduflow.com' },
       update: {},
       create: {
         email: 'admin@eduflow.com',
-        name: '系统管理员',
+        name: 'Admin',
         password: adminPassword,
         roles: ['ADMIN'],
       },
-    })
+    });
 
     // 创建测试教师
     const teacherPassword = await hash('teacher123', 12)
@@ -57,17 +57,17 @@ async function main() {
       },
     })
 
-    console.log('数据库初始化成功!')
-    console.log('测试账号:')
-    console.log('管理员: admin@eduflow.com / admin123')
-    console.log('教师: teacher@eduflow.com / teacher123')
-    console.log('学生: student@eduflow.com / student123')
+    console.log('Database initialized successfully');
+    console.log('Test accounts:');
+    console.log('Admin: admin@eduflow.com / admin123');
+    console.log('Teacher: teacher@eduflow.com / teacher123');
+    console.log('Student: student@eduflow.com / student123');
   } catch (error) {
-    console.error('数据库初始化失败:', error)
-    process.exit(1)
+    console.error('Database initialization failed:', error);
+    process.exit(1);
   } finally {
-    await prisma.$disconnect()
+    await prisma.$disconnect();
   }
 }
 
-main() 
+main(); 

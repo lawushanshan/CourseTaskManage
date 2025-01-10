@@ -1,8 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { Role } from '@prisma/client'
-import { getUserPermissions } from '@/types/auth'
+import { Role, getUserPermissions, type UserPermissions } from '@/types/auth'
 import { Alert } from 'antd'
 
 interface PermissionGuardProps {

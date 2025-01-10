@@ -1,0 +1,133 @@
+/* 主页容器 */
+.home-container {
+  overflow: hidden;
+}
+
+/* Hero 区域 */
+.hero-section {
+  position: relative;
+  padding: 80px 0;
+  background: linear-gradient(135deg, #f0f2f5 0%, #e6f7ff 100%);
+}
+
+.hero-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.hero-text {
+  padding: 48px 0;
+}
+
+.hero-text h1 {
+  font-size: 48px;
+  line-height: 1.2;
+  margin-bottom: 24px;
+  background: linear-gradient(to right, #1890ff, #722ed1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-description {
+  font-size: 18px;
+  line-height: 1.6;
+  color: rgba(0, 0, 0, 0.65);
+  margin-bottom: 32px;
+}
+
+/* 特性区域 */
+.features-section {
+  padding: 80px 24px;
+  background: #fff;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-description {
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.45);
+  margin-bottom: 48px;
+}
+
+.feature-card {
+  height: 100%;
+  text-align: center;
+  padding: 32px 24px;
+  transition: all 0.3s;
+}
+
+.feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+.feature-icon {
+  font-size: 36px;
+  color: #1890ff;
+  margin-bottom: 24px;
+}
+
+/* CTA 区域 */
+.cta-section {
+  padding: 80px 24px;
+  background: linear-gradient(135deg, #1890ff 0%, #722ed1 100%);
+  color: white;
+}
+
+.cta-section h2 {
+  color: white !important;
+  margin-bottom: 16px;
+}
+
+.cta-description {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 18px;
+  margin-bottom: 32px;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 40px 0;
+  }
+
+  .hero-text {
+    padding: 24px 0;
+    text-align: center;
+  }
+
+  .hero-text h1 {
+    font-size: 36px;
+  }
+
+  .features-section {
+    padding: 40px 16px;
+  }
+
+  .cta-section {
+    padding: 40px 16px;
+  }
+}
+
+.hero-image {
+  animation: float 6s ease-in-out infinite;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.1));
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-image {
+    max-width: 100%;
+    height: auto;
+    margin-top: 24px;
+  }
+} 

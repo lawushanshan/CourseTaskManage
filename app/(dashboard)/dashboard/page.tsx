@@ -1,68 +1,27 @@
-import { Metadata } from 'next'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { redirect } from 'next/navigation'
-import { prisma } from '@/lib/prisma'
-import { DashboardStats } from '@/components/dashboard/dashboard-stats'
-import { RecentCourses } from '@/components/dashboard/recent-courses'
-import { LearningProgress } from '@/components/dashboard/learning-progress'
+import { PageContainer } from '@/components/layouts/page-container'
+import { Button, Row, Col, Card, Statistic } from 'antd'
+import { PlusOutlined } from '@ant-design/icons'
 
-export const metadata: Metadata = {
-  title: '个人仪表板 | EduFlow',
-  description: '查看您的学习进度和最近课程',
-}
-
-export default async function DashboardPage() {
-  const session = await getServerSession(authOptions)
-  if (!session) {
-    redirect('/login')
-  }
-
-  const stats = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    include: {
-      _count: {
-        select: {
-          enrolledCourses: true,
-          completedSteps: true,
-          comments: true,
-        },
-      },
-    },
-  })
-
-  const recentCourses = await prisma.course.findMany({
-    where: {
-      students: {
-        some: {
-          id: session.user.id,
-        },
-      },
-    },
-    take: 5,
-    orderBy: {
-      enrollments: {
-        _count: 'desc',
-      },
-    },
-    include: {
-      teacher: {
-        select: {
-          name: true,
-        },
-      },
-    },
-  })
-
+export default function DashboardPage() {
   return (
-    <div className="container py-10">
-      <div className="flex flex-col gap-8">
-        <DashboardStats stats={stats} />
-        <div className="grid gap-6 md:grid-cols-2">
-          <RecentCourses courses={recentCourses} />
-          <LearningProgress userId={session.user.id} />
-        </div>
-      </div>
-    </div>
+    <PageContainer
+      title="仪表板"
+      subtitle="欢迎回来，这里是您的学习概览"
+      extra={
+        <Button type="primary" icon={<PlusOutlined />}>
+          新建课程
+        </Button>
+      }
+    >
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={12} lg={6}>
+          <Card className="stat-card">
+            <Statistic title="总课程数" value={12} />
+          </Card>
+        </Col>
+        {/* 更多统计卡片 */}
+      </Row>
+      {/* 其他内容 */}
+    </PageContainer>
   )
 } 

@@ -1,27 +1,31 @@
-import pino from 'pino'
-import { createWriteStream } from 'pino-http-send'
+import { isServer } from '@/lib/utils'
 
-// 创建日志写入流
-const streams = [
-  { stream: process.stdout },  // 控制台输出
-  createWriteStream({
-    url: '/api/logs',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  }),
-]
+// 客户端日志记录器
+const clientLogger = {
+  info: (data: any) => console.log(data),
+  error: (data: any) => console.error(data),
+  warn: (data: any) => console.warn(data),
+  debug: (data: any) => console.debug(data),
+}
 
-// 创建日志记录器
-export const logger = pino({
-  level: process.env.LOG_LEVEL || 'info',
-  formatters: {
-    level: (label) => {
-      return { level: label }
+let logger: any
+
+if (isServer) {
+  // 服务器端动态导入
+  const pino = require('pino')
+  
+  // 创建日志记录器
+  logger = pino({
+    level: process.env.LOG_LEVEL || 'info',
+    formatters: {
+      level: (label) => {
+        return { level: label }
+      },
     },
-  },
-}, pino.multistream(streams))
+  })
+} else {
+  logger = clientLogger
+}
 
 // 日志类型
 export type LogLevel = 'info' | 'error' | 'warn' | 'debug'

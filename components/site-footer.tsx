@@ -1,33 +1,28 @@
-import { cn } from '@/lib/utils'
+'use client'
 
-export function SiteFooter({ className }: React.HTMLAttributes<HTMLElement>) {
+import { Layout, Typography, Space } from 'antd'
+import Link from 'next/link'
+
+const { Footer } = Layout
+const { Text, Link: AntLink } = Typography
+
+export function SiteFooter() {
   return (
-    <footer className={cn(className)}>
-      <div className="container flex flex-col items-center justify-between gap-4 py-10 md:h-24 md:flex-row md:py-0">
-        <div className="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-          <p className="text-center text-sm leading-loose md:text-left">
-            Built by{' '}
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noreferrer"
-              className="font-medium underline underline-offset-4"
-            >
-              EduFlow Team
-            </a>
-            . The source code is available on{' '}
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noreferrer"
-              className="font-medium underline underline-offset-4"
-            >
-              GitHub
-            </a>
-            .
-          </p>
-        </div>
-      </div>
-    </footer>
+    <Footer style={{ textAlign: 'center' }}>
+      <Space direction="vertical" size={4}>
+        <Text>© 2024 EduFlow. All rights reserved.</Text>
+        <Space split="|">
+          <Link href="/about" passHref>
+            <AntLink>关于我们</AntLink>
+          </Link>
+          <Link href="/privacy" passHref>
+            <AntLink>隐私政策</AntLink>
+          </Link>
+          <Link href="/terms" passHref>
+            <AntLink>服务条款</AntLink>
+          </Link>
+        </Space>
+      </Space>
+    </Footer>
   )
 } 

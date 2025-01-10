@@ -1,22 +1,36 @@
-import { Analytics } from '@/components/analytics'
-import { ThemeProvider } from '@/components/providers/theme-provider'
-import { Toaster } from '@/components/ui/toaster'
-import { cn } from '@/lib/utils'
-import '@/styles/globals.css'
-import { Inter } from 'next/font/google'
-import { ReactNode } from 'react'
+import { SessionProvider } from '@/components/providers/session-provider'
+import { ProLayout } from '@/components/layouts/pro-layout'
+import { SiteHeader } from '@/components/site-header'
+import { ConfigProvider, App as AntApp } from 'antd'
+import zhCN from 'antd/locale/zh_CN'
+import '@/styles/header.css'
 
-const inter = Inter({ subsets: ['latin'] })
+const themeConfig = {
+  token: {
+    colorPrimary: '#1890ff',
+    borderRadius: 6,
+  },
+}
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="zh-CN" suppressHydrationWarning>
-      <body className={cn('min-h-screen bg-background antialiased', inter.className)}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
-          <Toaster />
-        </ThemeProvider>
-        <Analytics />
+    <html lang="zh-CN">
+      <body>
+        <SessionProvider>
+          <ConfigProvider
+            theme={themeConfig}
+            locale={zhCN}
+          >
+            <AntApp>
+              <SiteHeader />
+              <ProLayout>{children}</ProLayout>
+            </AntApp>
+          </ConfigProvider>
+        </SessionProvider>
       </body>
     </html>
   )

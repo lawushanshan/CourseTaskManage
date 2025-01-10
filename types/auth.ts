@@ -1,57 +1,25 @@
-import { Role } from '@prisma/client'
-
-export interface UserPermissions {
-  canManageUsers: boolean
-  canManageCourses: boolean
-  canManageSettings: boolean
-  canViewAnalytics: boolean
-  canTeachCourses: boolean
-  canEnrollCourses: boolean
+export enum Role {
+  ADMIN = 'ADMIN',
+  TEACHER = 'TEACHER',
+  STUDENT = 'STUDENT'
 }
 
-export const DEFAULT_PERMISSIONS: Record<Role, UserPermissions> = {
-  ADMIN: {
-    canManageUsers: true,
-    canManageCourses: true,
-    canManageSettings: true,
-    canViewAnalytics: true,
-    canTeachCourses: true,
-    canEnrollCourses: true,
-  },
-  TEACHER: {
-    canManageUsers: false,
-    canManageCourses: true,
-    canManageSettings: false,
-    canViewAnalytics: true,
-    canTeachCourses: true,
-    canEnrollCourses: true,
-  },
-  STUDENT: {
-    canManageUsers: false,
-    canManageCourses: false,
-    canManageSettings: false,
-    canViewAnalytics: false,
-    canTeachCourses: false,
-    canEnrollCourses: true,
-  },
+export interface UserPermissions {
+  canManageUsers: boolean;
+  canManageCourses: boolean;
+  canTeach: boolean;
+  canEnroll: boolean;
+  canComment: boolean;
+  canRate: boolean;
 }
 
 export function getUserPermissions(roles: Role[]): UserPermissions {
-  const permissions: UserPermissions = {
-    canManageUsers: false,
-    canManageCourses: false,
-    canManageSettings: false,
-    canViewAnalytics: false,
-    canTeachCourses: false,
-    canEnrollCourses: false,
-  }
-
-  roles.forEach(role => {
-    const rolePermissions = DEFAULT_PERMISSIONS[role]
-    Object.keys(rolePermissions).forEach(key => {
-      permissions[key as keyof UserPermissions] ||= rolePermissions[key as keyof UserPermissions]
-    })
-  })
-
-  return permissions
+  return {
+    canManageUsers: roles.includes(Role.ADMIN),
+    canManageCourses: roles.includes(Role.ADMIN) || roles.includes(Role.TEACHER),
+    canTeach: roles.includes(Role.TEACHER),
+    canEnroll: roles.includes(Role.STUDENT),
+    canComment: true,
+    canRate: roles.includes(Role.STUDENT),
+  };
 } 

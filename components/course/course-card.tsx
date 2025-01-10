@@ -1,9 +1,11 @@
 'use client'
 
 import { Course } from '@/types'
-import { Button } from '../ui/button'
+import { Card, Button, Space, Typography } from 'antd'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+
+const { Text, Title } = Typography
 
 interface CourseCardProps {
   course: Course
@@ -13,37 +15,26 @@ export function CourseCard({ course }: CourseCardProps) {
   const router = useRouter()
 
   return (
-    <div className="group relative rounded-lg border p-6 hover:shadow-md transition-shadow">
-      <div className="flex flex-col space-y-4">
-        <div className="space-y-2">
-          <h3 className="font-semibold leading-none tracking-tight">
-            {course.title}
-          </h3>
-          <p className="text-sm text-muted-foreground line-clamp-2">
+    <Card hoverable>
+      <div className="space-y-4">
+        <div>
+          <Title level={4}>{course.title}</Title>
+          <Text type="secondary" ellipsis={{ rows: 2 }}>
             {course.description}
-          </p>
+          </Text>
         </div>
-        <div className="space-y-2">
-          <div className="flex items-center text-sm text-muted-foreground">
-            <span>讲师：{course.teacher.name}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push(`/courses/${course.id}`)}
-            >
+        <div>
+          <Text type="secondary">讲师：{course.teacher.name}</Text>
+          <Space className="mt-4" style={{ width: '100%', justifyContent: 'space-between' }}>
+            <Button type="link" onClick={() => router.push(`/courses/${course.id}`)}>
               查看详情
             </Button>
-            <Link
-              href={`/courses/${course.id}/learn`}
-              className={Button({ variant: "default", size: "sm" })}
-            >
-              开始学习
+            <Link href={`/courses/${course.id}/learn`} passHref>
+              <Button type="primary">开始学习</Button>
             </Link>
-          </div>
+          </Space>
         </div>
       </div>
-    </div>
+    </Card>
   )
 } 

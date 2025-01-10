@@ -1,33 +1,37 @@
-import Link from 'next/link'
-import { cn } from '@/lib/utils'
+'use client'
 
-export function MainNav({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLElement>) {
+import { Menu } from 'antd'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { HomeOutlined, BookOutlined, TeamOutlined } from '@ant-design/icons'
+
+export function MainNav() {
+  const pathname = usePathname()
+
+  const items = [
+    {
+      key: '/',
+      icon: <HomeOutlined />,
+      label: <Link href="/">首页</Link>,
+    },
+    {
+      key: '/courses',
+      icon: <BookOutlined />,
+      label: <Link href="/courses">课程</Link>,
+    },
+    {
+      key: '/about',
+      icon: <TeamOutlined />,
+      label: <Link href="/about">关于</Link>,
+    },
+  ]
+
   return (
-    <nav
-      className={cn('flex items-center space-x-4 lg:space-x-6', className)}
-      {...props}
-    >
-      <Link
-        href="/"
-        className="text-sm font-medium transition-colors hover:text-primary"
-      >
-        首页
-      </Link>
-      <Link
-        href="/courses"
-        className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-      >
-        课程
-      </Link>
-      <Link
-        href="/forum"
-        className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-      >
-        论坛
-      </Link>
-    </nav>
+    <Menu
+      mode="horizontal"
+      selectedKeys={[pathname]}
+      items={items}
+      className="border-none"
+    />
   )
 } 

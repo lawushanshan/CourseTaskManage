@@ -1,64 +1,78 @@
 'use client'
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { signOut, useSession } from 'next-auth/react'
+import { Avatar, Dropdown, Button, Modal } from 'antd'
+import type { MenuProps } from 'antd'
 import { useRouter } from 'next/navigation'
+import { useSession, signOut } from 'next-auth/react'
+import { UserOutlined, LogoutOutlined } from '@ant-design/icons'
+import { useState } from 'react'
 
 export function UserNav() {
   const { data: session } = useSession()
   const router = useRouter()
+  const [logoutModalOpen, setLogoutModalOpen] = useState(false)
 
   if (!session) return null
 
+  const handleLogout = () => {
+    setLogoutModalOpen(true)
+  }
+
+  const confirmLogout = () => {
+    signOut({ callbackUrl: '/' })
+    setLogoutModalOpen(false)
+  }
+
+  const items: MenuProps['items'] = [
+    {
+      key: 'profile',
+      label: (
+        <div className="px-2 py-1.5">
+          <div className="font-medium">{session.user.name}</div>
+          <div className="text-xs text-gray-500">{session.user.email}</div>
+        </div>
+      ),
+    },
+    { type: 'divider' },
+    {
+      key: 'dashboard',
+      label: '仪表板',
+      onClick: () => router.push('/dashboard'),
+    },
+    {
+      key: 'settings',
+      label: '设置',
+      onClick: () => router.push('/settings'),
+    },
+    { type: 'divider' },
+    {
+      key: 'signout',
+      label: '退出登录',
+      icon: <LogoutOutlined />,
+      danger: true,
+      onClick: handleLogout,
+    },
+  ]
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src="/avatars/01.png" alt={session.user.name || ''} />
-            <AvatarFallback>{session.user.name?.[0]}</AvatarFallback>
-          </Avatar>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
-        <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{session.user.name}</p>
-            <p className="text-xs leading-none text-muted-foreground">
-              {session.user.email}
-            </p>
-          </div>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem onClick={() => router.push('/dashboard')}>
-            仪表板
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push('/profile')}>
-            个人资料
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push('/settings')}>
-            设置
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="text-red-600"
-          onClick={() => signOut({ callbackUrl: '/' })}
-        >
-          退出登录
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <Dropdown menu={{ items }} placement="bottomRight">
+        <Button type="text" icon={
+          <Avatar size="small" icon={<UserOutlined />} src={session.user.image} />
+        } />
+      </Dropdown>
+
+      <Modal
+        title="退出登录"
+        open={logoutModalOpen}
+        onOk={confirmLogout}
+        onCancel={() => setLogoutModalOpen(false)}
+        okText="确认"
+        cancelText="取消"
+        okButtonProps={{ danger: true }}
+      >
+        <p>确定要退出登录吗？</p>
+      </Modal>
+    </>
   )
 } 
