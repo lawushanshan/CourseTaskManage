@@ -1,0 +1,318 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 课程难度等级
+enum Level {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+// 课程状态
+enum Status {
+  DRAFT       // 草稿
+  PUBLISHED   // 已发布
+  ARCHIVED    // 已归档
+}
+
+// 通知类型
+enum NotificationType {
+  SYSTEM
+  COURSE
+  TASK
+  COMMENT
+  RATING
+}
+
+// 用户角色
+enum Role {
+  ADMIN
+  TEACHER
+  STUDENT
+}
+
+model User {
+  id              String    @id @default(cuid())
+  name            String
+  email           String    @unique
+  password        String
+  roles           Role[]    @default([STUDENT])
+  isActive        Boolean   @default(true)
+  teachingCourses Course[]  @relation("TeachingCourses")
+  enrolledCourses Course[]  @relation("EnrolledCourses")
+  completedSteps  Step[]    @relation("CompletedSteps")
+  comments        Comment[]
+  ratings         Rating[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  completedTasks    TaskCompletion[]
+  completedCourses  CourseCompletion[]
+  studentCourses    StudentCourse[]
+  systemLogs        SystemLog[]
+  notifications     Notification[]
+  stepCompletions   StepCompletion[]
+}
+
+model Course {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  coverImage  String?
+  category    String?
+  level       String?
+  price       Float?
+  status      CourseStatus @default(DRAFT)
+  teacherId   String
+  teacher     User     @relation("TeachingCourses", fields: [teacherId], references: [id])
+  students    User[]   @relation("EnrolledCourses")
+  tasks       Task[]
+  ratings     Rating[]
+  comments    Comment[]
+  studentCourses StudentCourse[]
+  completions CourseCompletion[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([teacherId])
+  @@index([status])
+  @@index([category])
+}
+
+model Task {
+  id                   String   @id @default(cuid())
+  courseId             String
+  title                String
+  description          String?
+  orderIndex           Int
+  expectedCompletionDate DateTime?
+  createdAt            DateTime @default(now())
+
+  // Relations
+  course               Course   @relation(fields: [courseId], references: [id])
+  steps                Step[]
+  comments             Comment[]
+  ratings              Rating[]
+  completions          TaskCompletion[]
+
+  @@map("tasks")
+}
+
+model Step {
+  id          String   @id @default(cuid())
+  taskId      String
+  title       String
+  content     String
+  orderIndex  Int
+  contentType ContentType @default(TEXT)
+  resources   String[]
+  createdAt   DateTime @default(now())
+
+  // Relations
+  task        Task     @relation(fields: [taskId], references: [id])
+  completions StepCompletion[]
+  comments    Comment[]
+  completedBy User[]   @relation("CompletedSteps")
+
+  @@map("steps")
+}
+
+model StudentCourse {
+  id                String   @id @default(cuid())
+  studentId         String
+  courseId          String
+  progressPercentage Int      @default(0)
+  status            StudentCourseStatus @default(IN_PROGRESS)
+  joinedAt          DateTime @default(now())
+
+  // Relations
+  student           User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course            Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, courseId])
+  @@map("student_courses")
+}
+
+model StepCompletion {
+  id        String   @id @default(cuid())
+  studentId String
+  stepId    String
+  completedAt DateTime @default(now())
+
+  // Relations
+  student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  step      Step     @relation(fields: [stepId], references: [id])
+
+  @@unique([studentId, stepId])
+  @@map("step_completions")
+}
+
+model Comment {
+  id         String   @id @default(cuid())
+  userId     String
+  targetType TargetType
+  targetId   String
+  content    String
+  parentId   String?  // 用于回复功能
+  isPrivate  Boolean  @default(false)
+  isPinned   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  user       User     @relation(fields: [userId], references: [id])
+  parent     Comment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies    Comment[] @relation("CommentReplies")
+  course     Course?  @relation(fields: [courseId], references: [id])
+  task       Task?    @relation(fields: [taskId], references: [id])
+  step       Step?    @relation(fields: [stepId], references: [id])
+
+  courseId   String?
+  taskId     String?
+  stepId     String?
+
+  @@index([userId])
+  @@index([targetType, targetId])
+  @@index([parentId])
+  @@index([createdAt])
+  @@index([isPinned, createdAt])
+}
+
+model Rating {
+  id         String   @id @default(cuid())
+  userId     String
+  targetType TargetType
+  targetId   String
+  score      Int
+  review     String?
+  createdAt  DateTime @default(now())
+
+  // Relations
+  user       User     @relation(fields: [userId], references: [id])
+  course     Course?  @relation(fields: [courseId], references: [id])
+  task       Task?    @relation(fields: [taskId], references: [id])
+
+  courseId   String?
+  taskId     String?
+
+  @@map("ratings")
+}
+
+enum StudentCourseStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum ContentType {
+  TEXT
+  MARKDOWN
+  VIDEO
+  QUIZ
+}
+
+enum TargetType {
+  COURSE
+  TASK
+  STEP
+}
+
+model SystemSetting {
+  id                String   @id @default("1")
+  siteName          String   @default("EduFlow")
+  siteDescription   String   @default("在线学习平台")
+  maxUploadSize     Int      @default(5)
+  allowRegistration Boolean  @default(true)
+  maintenanceMode   Boolean  @default(false)
+  allowMultipleRoles Boolean @default(true)
+  defaultUserRole   Role     @default(STUDENT)
+  updatedAt         DateTime @updatedAt
+}
+
+// 系统日志
+model SystemLog {
+  id        String   @id @default(cuid())
+  level     String   // info, warn, error, debug
+  message   String
+  data      Json?
+  timestamp DateTime
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([timestamp])
+  @@index([level])
+  @@index([userId])
+}
+
+// 系统指标
+model SystemMetric {
+  id        String   @id @default(cuid())
+  type      String   // SYSTEM, CUSTOM
+  metrics   Json
+  timestamp DateTime
+
+  @@index([timestamp])
+  @@index([type])
+}
+
+// 通知模型
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  content   String
+  isRead    Boolean  @default(false)
+  data      Json?
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model TaskCompletion {
+  id          String   @id @default(cuid())
+  studentId   String
+  taskId      String
+  completedAt DateTime @default(now())
+  
+  // Relations
+  student     User     @relation(fields: [studentId], references: [id])
+  task        Task     @relation(fields: [taskId], references: [id])
+
+  @@unique([studentId, taskId])
+  @@index([studentId])
+  @@index([taskId])
+  @@map("task_completions")
+}
+
+model CourseCompletion {
+  id          String   @id @default(cuid())
+  studentId   String
+  courseId    String
+  completedAt DateTime @default(now())
+  grade       Float?   // 可选的课程评分
+  feedback    String?  // 可选的完成反馈
+  
+  // Relations  
+  student     User     @relation(fields: [studentId], references: [id])
+  course      Course   @relation(fields: [courseId], references: [id])
+
+  @@unique([studentId, courseId])
+  @@index([studentId])
+  @@index([courseId])
+  @@map("course_completions")
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+} 

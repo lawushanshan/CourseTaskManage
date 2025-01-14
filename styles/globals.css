@@ -1,0 +1,207 @@
+@import '~antd/dist/antd.css';
+
+/* Pro 布局样式 */
+.ant-layout {
+  background: #f0f2f5;
+}
+
+.ant-layout-header {
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0,21,41,.08);
+  z-index: 100;
+}
+
+.ant-menu-inline {
+  border-right: none;
+}
+
+.ant-menu-item {
+  height: 48px !important;
+  line-height: 48px !important;
+  margin: 4px 0 !important;
+}
+
+.ant-menu-item-selected {
+  background-color: #e6f7ff !important;
+}
+
+/* 页面内容区域 */
+.page-container {
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.page-header-title {
+  font-size: 20px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.85);
+  margin-bottom: 16px;
+}
+
+/* Card 样式优化 */
+.ant-card {
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.03);
+}
+
+.ant-card-hoverable:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* 表格样式优化 */
+.ant-table-wrapper {
+  background: #fff;
+  border-radius: 8px;
+}
+
+/* 表单样式优化 */
+.ant-form-item-label > label {
+  font-weight: 500;
+}
+
+/* 统计卡片 */
+.stat-card {
+  padding: 20px 24px;
+}
+
+.stat-card .ant-statistic-title {
+  color: rgba(0,0,0,0.45);
+  font-size: 14px;
+}
+
+.stat-card .ant-statistic-content {
+  color: rgba(0,0,0,0.85);
+  font-size: 24px;
+  font-weight: 500;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .ant-layout-sider {
+    display: none;
+  }
+  
+  .ant-layout {
+    margin-left: 0 !important;
+  }
+  
+  .page-container {
+    padding: 12px;
+  }
+} 
+
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
+}
+
+.hero-content {
+  padding: 48px 0;
+}
+
+.hero-content h1 {
+  font-size: 48px;
+  line-height: 1.2;
+  margin-bottom: 24px;
+  background: linear-gradient(to right, #1890ff, #722ed1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Feature Cards */
+.feature-card {
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.feature-card .anticon {
+  font-size: 36px;
+  margin-bottom: 16px;
+  color: #1890ff;
+}
+
+/* Stats Cards */
+.stat-card {
+  text-align: center;
+  padding: 24px;
+}
+
+.stat-card .ant-statistic-title {
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.stat-card .ant-statistic-content {
+  font-size: 36px;
+  font-weight: 600;
+}
+
+/* CTA Section */
+.cta-section {
+  background: linear-gradient(135deg, #1890ff 0%, #722ed1 100%);
+  color: white;
+  padding: 80px 0;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .hero-content h1 {
+    font-size: 36px;
+  }
+
+  .hero-content {
+    padding: 24px 0;
+    text-align: center;
+  }
+
+  .feature-card,
+  .stat-card {
+    margin-bottom: 16px;
+  }
+}
+
+/* 动画效果 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Logo相关样式 */
+.logo-container {
+  transition: opacity 0.2s ease;
+}
+
+.logo-container:hover {
+  opacity: 0.9;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+} 

@@ -1,0 +1,17 @@
+<svg width="160" height="53" viewBox="0 0 160 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Logo 背景 -->
+  <rect width="53" height="53" rx="10" fill="#1890FF"/>
+  
+  <!-- E 字母 -->
+  <path d="M15 15H38V20H20V24H36V29H20V33H38V38H15V15Z" fill="white"/>
+  
+  <!-- 文字部分 -->
+  <path d="M60 20H70L75 38H71L70 34H60L59 38H55L60 20ZM61 31H69L65 23L61 31Z" fill="#1890FF"/>
+  <path d="M77 20H81V35H92V38H77V20Z" fill="#1890FF"/>
+  <path d="M95 20H99V38H95V20Z" fill="#1890FF"/>
+  
+  <!-- Flow 文字 -->
+  <path d="M102 20H115V23H106V38H102V20Z" fill="#1890FF"/>
+  <path d="M117 20H121L126 31L131 20H135L127 38H125L117 20Z" fill="#1890FF"/>
+  <path d="M137 20H152V23H141V27H150V30H141V38H137V20Z" fill="#1890FF"/>
+</svg> 

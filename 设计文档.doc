@@ -1,0 +1,190 @@
+核心表结构设计
+-- 用户表
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    role ENUM('student', 'teacher', 'admin') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 课程表
+CREATE TABLE courses (
+    id SERIAL PRIMARY KEY,
+    teacher_id INTEGER REFERENCES users(id),
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    learning_objectives TEXT,
+    prerequisites TEXT,
+    status ENUM('draft', 'published', 'archived') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 任务表
+CREATE TABLE tasks (
+    id SERIAL PRIMARY KEY,
+    course_id INTEGER REFERENCES courses(id),
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    order_index INTEGER NOT NULL,
+    expected_completion_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 步骤表
+CREATE TABLE steps (
+    id SERIAL PRIMARY KEY,
+    task_id INTEGER REFERENCES tasks(id),
+    title VARCHAR(255) NOT NULL,
+    content TEXT,
+    order_index INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 学生课程关联表
+CREATE TABLE student_courses (
+    id SERIAL PRIMARY KEY,
+    student_id INTEGER REFERENCES users(id),
+    course_id INTEGER REFERENCES courses(id),
+    progress_percentage INTEGER DEFAULT 0,
+    status ENUM('in_progress', 'completed') NOT NULL,
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 学生步骤完成记录表
+CREATE TABLE step_completions (
+    id SERIAL PRIMARY KEY,
+    student_id INTEGER REFERENCES users(id),
+    step_id INTEGER REFERENCES steps(id),
+    completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 评论表
+CREATE TABLE comments (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    target_type ENUM('step', 'task', 'course') NOT NULL,
+    target_id INTEGER NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 评分表
+CREATE TABLE ratings (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    target_type ENUM('task', 'course') NOT NULL,
+    target_id INTEGER NOT NULL,
+    score INTEGER CHECK (score >= 1 AND score <= 5),
+    review TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+核心功能实现流程
+3. API设计
+3.1 认证相关
+// 用户认证API
+POST /api/auth/register
+POST /api/auth/login
+POST /api/auth/logout
+GET /api/auth/me
+3.2 课程相关
+// 课程管理API
+POST /api/courses
+GET /api/courses
+GET /api/courses/:id
+PUT /api/courses/:id
+DELETE /api/courses/:id
+POST /api/courses/:id/join
+GET /api/courses/:id/students
+3.3 任务相关
+// 任务管理API
+POST /api/tasks
+GET /api/tasks
+PUT /api/tasks/:id
+DELETE /api/tasks/:id
+POST /api/tasks/:id/complete
+3.4 步骤相关
+// 任务管理API
+POST /api/steps
+GET /api/steps
+PUT /api/steps/:id
+DELETE /api/steps/:id
+POST /api/steps/:id/complete
+
+
+4. 页面路由设计
+// 页面路由结构
+/                           // 首页
+/auth
+  /login                    // 登录
+  /register                 // 注册
+/dashboard                  // 个人仪表板
+/courses
+  /[id]                    // 课程详情
+  /create                  // 创建课程
+  /[id]/edit              // 编辑课程
+/tasks
+  /[id]                    // 任务详情
+/forum                     // 学校论坛
+/admin                     // 管理员界面
+5.1 课程创建流程
+sequenceDiagram
+    参与者 Teacher
+    参与者 Frontend
+    参与者 Backend
+    参与者 Database
+    
+    Teacher->>Frontend: 填写课程信息
+    Frontend->>Backend: 提交课程数据
+    Backend->>Database: 存储课程信息
+    Backend->>Frontend: 返回课程ID
+    Frontend->>Teacher: 显示创建成功
+
+5.2 学生加入课程流程
+sequenceDiagram
+    参与者 Student
+    参与者 Frontend
+    参与者 Backend
+    参与者 Database
+    
+    Student->>Frontend: 点击课程链接
+    Frontend->>Backend: 验证链接有效性
+    Backend->>Database: 创建学生课程关联
+    Backend->>Database: 复制任务到学生任务列表
+    Backend->>Frontend: 返回成功信息
+    Frontend->>Student: 显示加入成功
+
+6. 安全性考虑
+1. 用户认证与授权
+● 实现JWT token认证
+● 角色基础的访问控制
+● API请求限流
+● 数据安全
+● 所有敏感数据加密存储
+● 定期数据备份
+● SQL注入防护
+● 文件上传安全
+● 文件类型验证
+● 文件大小限制
+● 文件存储安全
+7. 性能优化
+● 前端优化
+● 组件懒加载
+● 图片懒加载
+● 状态管理优化
+● 后端优化
+● 数据库索引优化
+● 缓存策略
+● API响应压缩
+8. 部署方案
+● 环境配置
+● 开发环境
+● 测试环境
+● 生产环境
+2. CI/CD流程
+● 代码提交
+● 自动化测试
+● 自动部署
