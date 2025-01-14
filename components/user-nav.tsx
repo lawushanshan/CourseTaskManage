@@ -1,78 +1,49 @@
 'use client'
 
-import { Avatar, Dropdown, Button, Modal } from 'antd'
-import type { MenuProps } from 'antd'
-import { useRouter } from 'next/navigation'
-import { useSession, signOut } from 'next-auth/react'
+import { Button, Dropdown } from 'antd'
 import { UserOutlined, LogoutOutlined } from '@ant-design/icons'
-import { useState } from 'react'
+import { useSession, signOut } from 'next-auth/react'
+import Link from 'next/link'
 
 export function UserNav() {
   const { data: session } = useSession()
-  const router = useRouter()
-  const [logoutModalOpen, setLogoutModalOpen] = useState(false)
 
-  if (!session) return null
-
-  const handleLogout = () => {
-    setLogoutModalOpen(true)
-  }
-
-  const confirmLogout = () => {
-    signOut({ callbackUrl: '/' })
-    setLogoutModalOpen(false)
-  }
-
-  const items: MenuProps['items'] = [
-    {
-      key: 'profile',
-      label: (
-        <div className="px-2 py-1.5">
-          <div className="font-medium">{session.user.name}</div>
-          <div className="text-xs text-gray-500">{session.user.email}</div>
-        </div>
-      ),
-    },
-    { type: 'divider' },
+  const userMenuItems = [
     {
       key: 'dashboard',
-      label: '仪表板',
-      onClick: () => router.push('/dashboard'),
+      icon: <UserOutlined />,
+      label: <Link href="/dashboard">控制台</Link>,
     },
     {
-      key: 'settings',
-      label: '设置',
-      onClick: () => router.push('/settings'),
+      type: 'divider',
     },
-    { type: 'divider' },
     {
-      key: 'signout',
-      label: '退出登录',
+      key: 'logout',
       icon: <LogoutOutlined />,
-      danger: true,
-      onClick: handleLogout,
+      label: '退出登录',
+      onClick: () => signOut(),
     },
   ]
 
   return (
-    <>
-      <Dropdown menu={{ items }} placement="bottomRight">
-        <Button type="text" icon={
-          <Avatar size="small" icon={<UserOutlined />} src={session.user.image} />
-        } />
-      </Dropdown>
-
-      <Modal
-        title="退出登录"
-        open={logoutModalOpen}
-        onOk={confirmLogout}
-        onCancel={() => setLogoutModalOpen(false)}
-        okText="确认"
-        cancelText="取消"
-        okButtonProps={{ danger: true }}
+    <Dropdown
+      menu={{ items: userMenuItems }}
+      placement="bottomRight"
+      trigger={['click']}
+    >
+      <Button 
+        type="text" 
+        style={{
+          height: '40px',
+          padding: '4px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+        }}
       >
-        <p>确定要退出登录吗？</p>
-      </Modal>
-    </>
+        <UserOutlined />
+        <span>{session?.user?.name || '用户'}</span>
+      </Button>
+    </Dropdown>
   )
 } 

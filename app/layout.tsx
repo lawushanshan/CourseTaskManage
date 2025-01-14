@@ -1,9 +1,8 @@
 import { SessionProvider } from '@/components/providers/session-provider'
-import { ProLayout } from '@/components/layouts/pro-layout'
-import { SiteHeader } from '@/components/site-header'
 import { ConfigProvider, App as AntApp } from 'antd'
+import { SiteHeader } from '@/components/layout/site-header'
 import zhCN from 'antd/locale/zh_CN'
-import '@/styles/header.css'
+import './globals.css'
 
 const themeConfig = {
   token: {
@@ -27,7 +26,7 @@ export default function RootLayout({
           >
             <AntApp>
               <SiteHeader />
-              <ProLayout>{children}</ProLayout>
+              {children}
             </AntApp>
           </ConfigProvider>
         </SessionProvider>

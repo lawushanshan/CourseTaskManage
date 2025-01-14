@@ -1,7 +1,12 @@
 import { Metadata } from 'next'
 import { prisma } from '@/lib/prisma'
-import { CourseSearch } from '@/components/course/course-search'
 import { CourseList } from '@/components/course/course-list'
+import { PageContainer } from '@/components/layout/page-container'
+import { Button } from 'antd'
+import { PlusOutlined } from '@ant-design/icons'
+import Link from 'next/link'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 
 export const metadata: Metadata = {
   title: '课程列表 | EduFlow',
@@ -19,6 +24,9 @@ interface CoursesPageProps {
 }
 
 export default async function CoursesPage({ searchParams }: CoursesPageProps) {
+  const session = await getServerSession(authOptions)
+  const isTeacher = session?.user?.roles?.includes('TEACHER') || false
+
   // 修改获取分类的查询方式
   const [categories, teachers] = await Promise.all([
     prisma.$queryRaw<Array<{ category: string }>>`
@@ -46,12 +54,6 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
     ...(searchParams.category && { category: searchParams.category }),
     ...(searchParams.level && { level: searchParams.level }),
     ...(searchParams.teacher && { teacherId: searchParams.teacher }),
-    ...(searchParams.price && {
-      price: {
-        gte: parseInt(searchParams.price.split('-')[0]),
-        lte: parseInt(searchParams.price.split('-')[1]),
-      },
-    }),
   }
 
   // 获取课程列表
@@ -76,12 +78,23 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
   })
 
   return (
-    <div className="container py-10">
-      <CourseSearch
+    <PageContainer
+      title="课程管理"
+      extra={
+        isTeacher ? [
+          <Link key="create" href="/courses/create">
+            <Button type="primary" icon={<PlusOutlined />}>
+              创建课程
+            </Button>
+          </Link>
+        ] : undefined
+      }
+    >
+      <CourseList 
+        courses={courses}
         categories={categories.map(c => c.category)}
         teachers={teachers}
       />
-      <CourseList courses={courses} />
-    </div>
+    </PageContainer>
   )
 } 

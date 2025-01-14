@@ -1,38 +1,25 @@
 'use client'
 
-import Image from 'next/image'
-
 interface LogoProps {
-  size?: 'small' | 'medium' | 'large'
+  size?: 'small' | 'default'
   theme?: 'light' | 'dark'
 }
 
-export function Logo({ size = 'medium', theme = 'light' }: LogoProps) {
-  const sizes = {
-    small: { width: 120, height: 40 },
-    medium: { width: 160, height: 53 },
-    large: { width: 200, height: 66 }
-  }
+export function Logo({ size = 'default', theme = 'light' }: LogoProps) {
+  const fontSize = size === 'small' ? '18px' : '24px'
+  const color = theme === 'dark' ? '#fff' : '#1890ff'
 
   return (
-    <div className="logo-container">
-      <Image
-        src={`/images/logo-${theme}.svg`}
-        alt="EduFlow Logo"
-        {...sizes[size]}
-        priority
-        className="logo-image"
+    <div 
+      className="flex items-center"
+      style={{ fontSize, color }}
+    >
+      <img 
+        src="/logo.svg" 
+        alt="EduFlow" 
+        className={`mr-2 ${size === 'small' ? 'h-8 w-8' : 'h-10 w-10'}`}
       />
-      <style jsx>{`
-        .logo-container {
-          display: inline-flex;
-          align-items: center;
-        }
-        .logo-image {
-          height: auto;
-          object-fit: contain;
-        }
-      `}</style>
+      <span className="font-semibold">EduFlow</span>
     </div>
   )
 } 
