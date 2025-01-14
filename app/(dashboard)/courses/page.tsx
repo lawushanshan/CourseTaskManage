@@ -7,6 +7,7 @@ import { PlusOutlined } from '@ant-design/icons'
 import Link from 'next/link'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { SessionDebug } from '@/components/debug/session-debug'
 
 export const metadata: Metadata = {
   title: '课程列表 | EduFlow',
@@ -25,7 +26,16 @@ interface CoursesPageProps {
 
 export default async function CoursesPage({ searchParams }: CoursesPageProps) {
   const session = await getServerSession(authOptions)
+  
+  // 添加调试日志
+  console.log('=== Debug Info ===')
+  console.log('Current session:', session)
+  console.log('User:', session?.user)
+  console.log('User roles:', session?.user?.roles)
+  
   const isTeacher = session?.user?.roles?.includes('TEACHER') || false
+  console.log('Is teacher:', isTeacher)
+  console.log('=== End Debug Info ===')
 
   // 修改获取分类的查询方式
   const [categories, teachers] = await Promise.all([
@@ -78,23 +88,25 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
   })
 
   return (
-    <PageContainer
-      title="课程管理"
-      extra={
-        isTeacher ? [
-          <Link key="create" href="/courses/create">
-            <Button type="primary" icon={<PlusOutlined />}>
-              创建课程
-            </Button>
-          </Link>
-        ] : undefined
-      }
-    >
-      <CourseList 
-        courses={courses}
-        categories={categories.map(c => c.category)}
-        teachers={teachers}
-      />
-    </PageContainer>
+    <SessionDebug session={session} isTeacher={isTeacher}>
+      <PageContainer
+        title="课程管理"
+        extra={
+          isTeacher ? [
+            <Link key="create" href="/courses/create">
+              <Button type="primary" icon={<PlusOutlined />}>
+                创建课程
+              </Button>
+            </Link>
+          ] : undefined
+        }
+      >
+        <CourseList 
+          courses={courses}
+          categories={categories.map(c => c.category)}
+          teachers={teachers}
+        />
+      </PageContainer>
+    </SessionDebug>
   )
 } 

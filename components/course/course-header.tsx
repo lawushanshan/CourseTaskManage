@@ -1,40 +1,67 @@
 'use client'
 
 import { Course } from '@/types'
-import { Button } from '../ui/button'
+import { Button } from 'antd'
 import { useRouter } from 'next/navigation'
 
 interface CourseHeaderProps {
-  course?: Course
+  course: Course
+  isEnrolled?: boolean
+  isTeacher?: boolean
 }
 
-export function CourseHeader({ course }: CourseHeaderProps) {
+export function CourseHeader({ course, isEnrolled, isTeacher }: CourseHeaderProps) {
   const router = useRouter()
 
-  if (!course) return null
-
-  const handleShare = async () => {
+  const handleEnroll = async () => {
     try {
-      await navigator.clipboard.writeText(window.location.href)
-      // TODO: Show toast notification
+      const response = await fetch(`/api/courses/${course.id}/enroll`, {
+        method: 'POST',
+      })
+
+      if (!response.ok) {
+        throw new Error('加入课程失败')
+      }
+
+      router.refresh()
     } catch (error) {
-      console.error('Failed to copy link:', error)
+      console.error('Failed to enroll:', error)
     }
   }
 
   return (
-    <div className="flex items-center justify-between pb-4 border-b">
-      <div>
-        <h1 className="text-2xl font-bold">{course.title}</h1>
-        <p className="text-muted-foreground">{course.description}</p>
-      </div>
-      <div className="flex items-center gap-4">
-        <Button variant="outline" onClick={handleShare}>
-          分享课程
-        </Button>
-        <Button onClick={() => router.push(`/courses/${course.id}/learn`)}>
-          开始学习
-        </Button>
+    <div className="bg-white border-b">
+      <div className="container max-w-screen-xl mx-auto px-4 py-8">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold mb-2">{course.title}</h1>
+            <p className="text-gray-600">{course.description}</p>
+          </div>
+          <div>
+            {isTeacher ? (
+              <Button 
+                type="primary"
+                onClick={() => router.push(`/courses/${course.id}/edit`)}
+              >
+                编辑课程
+              </Button>
+            ) : !isEnrolled ? (
+              <Button 
+                type="primary"
+                onClick={handleEnroll}
+              >
+                加入课程
+              </Button>
+            ) : (
+              <Button 
+                type="default"
+                onClick={() => router.push(`/courses/${course.id}/learn`)}
+              >
+                继续学习
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )
