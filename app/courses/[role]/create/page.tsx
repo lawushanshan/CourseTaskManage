@@ -1,24 +1,31 @@
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { redirect } from 'next/navigation'
+'use client'
+
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { CourseForm } from '@/components/course/course-form'
 
-interface Props {
-  params: {
-    role: string
-  }
-}
+export default function CreateCoursePage() {
+  const router = useRouter()
+  const { data: session, status } = useSession()
 
-export default async function CreateCoursePage({ params }: Props) {
-  const session = await getServerSession(authOptions)
-  
-  if (!session) {
-    redirect('/login')
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login')
+    }
+    
+    if (session && !session.user.roles.includes('TEACHER')) {
+      router.push('/login')
+    }
+  }, [session, status, router])
+
+  if (status === 'loading') {
+    return <div>Loading...</div>
   }
 
-  if (params.role !== 'teacher' || !session.user.roles.includes('TEACHER')) {
-    redirect('/login')
+  if (!session || !session.user.roles.includes('TEACHER')) {
+    return null
   }
-  
+
   return <CourseForm />
 } 

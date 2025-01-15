@@ -75,6 +75,10 @@ const nextConfig = {
         source: '/teacher/courses/:path*',
         destination: '/courses/teacher/:path*',
       },
+      {
+        source: '/courses/:courseId/edit',
+        destination: '/courses/teacher/:courseId/edit',
+      },
     ]
   },
 }

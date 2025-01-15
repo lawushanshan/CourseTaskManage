@@ -33,5 +33,5 @@ export default async function EditCoursePage({ params }: Props) {
     redirect('/courses/teacher')
   }
 
-  return <CourseForm initialValues={course} mode="edit" />
+  return <CourseForm initialValues={course} mode="edit" role={params.role} />
 } 

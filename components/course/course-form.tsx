@@ -11,9 +11,10 @@ import { COURSE_LEVELS, COURSE_LEVEL_LABELS } from '@/constants/enums'
 interface CourseFormProps {
   initialValues?: CourseFormData
   mode?: 'create' | 'edit'
+  role?: string
 }
 
-export function CourseForm({ initialValues, mode = 'create' }: CourseFormProps) {
+export function CourseForm({ initialValues, mode = 'create', role = 'teacher' }: CourseFormProps) {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const { data: session } = useSession()
@@ -38,11 +39,11 @@ export function CourseForm({ initialValues, mode = 'create' }: CourseFormProps) 
       if (mode === 'edit' && initialValues?.id) {
         const course = await updateCourse(initialValues.id, values)
         message.success('课程更新成功！')
-        router.push(`/courses/${course.id}/edit`)
+        router.push(`/courses/${role}/${course.id}/edit`)
       } else {
         const course = await createCourse(values)
         message.success('课程创建成功！')
-        router.push(`/courses/${course.id}/edit`)
+        router.push('/courses/teacher')  // 直接跳转到课程列表
       }
     } catch (error) {
       console.error('Course operation error:', error)

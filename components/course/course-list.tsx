@@ -26,7 +26,7 @@ export function CourseList({ courses }: CourseListProps) {
             <Card title={course.title}>
               <p>{course.description}</p>
               <div className="mt-4">
-                <Link href={`/courses/${course.id}/edit`}>
+                <Link href={`/courses/teacher/${course.id}/edit`}>
                   <Button>编辑课程</Button>
                 </Link>
               </div>
