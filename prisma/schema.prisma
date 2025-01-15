@@ -60,24 +60,25 @@ model User {
 }
 
 model Course {
-  id          String    @id @default(cuid())
-  title       String
-  description String?
-  coverImage  String?
-  category    String?
-  level       String?
-  price       Float?
-  status      CourseStatus @default(DRAFT)
-  teacherId   String
-  teacher     User     @relation("TeachingCourses", fields: [teacherId], references: [id])
-  students    User[]   @relation("EnrolledCourses")
-  tasks       Task[]
-  ratings     Rating[]
-  comments    Comment[]
-  studentCourses StudentCourse[]
-  completions CourseCompletion[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                String    @id @default(cuid())
+  title             String
+  description       String
+  coverImage        String?
+  category          String
+  level             String
+  price             Float?
+  status            CourseStatus @default(DRAFT)
+  teacherId         String
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  teacher           User      @relation("TeachingCourses", fields: [teacherId], references: [id])
+  students          User[]    @relation("EnrolledCourses")
+  tasks             Task[]
+  ratings           Rating[]
+  comments          Comment[]
+  studentCourses    StudentCourse[]
+  completions       CourseCompletion[]
 
   @@index([teacherId])
   @@index([status])

@@ -2,16 +2,28 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { getToken } from 'next-auth/jwt'
 
 export async function POST(request: Request) {
+  console.log('=== API Route Debug ===')
+  console.log('Headers:', Object.fromEntries(request.headers))
+  
   try {
+    const token = await getToken({ req: request })
+    
+    if (!token) {
+      return NextResponse.json({ error: '未授权' }, { status: 401 })
+    }
+
     const session = await getServerSession(authOptions)
+    console.log('Session:', session)
     
     if (!session || !session.user.roles.includes('TEACHER')) {
       return NextResponse.json({ error: '未授权' }, { status: 401 })
     }
 
     const data = await request.json()
+    console.log('Request data:', data)
     
     const course = await prisma.course.create({
       data: {

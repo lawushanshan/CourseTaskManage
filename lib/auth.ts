@@ -8,6 +8,7 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60,
   },
   pages: {
     signIn: '/login',
@@ -28,6 +29,13 @@ export const authOptions: NextAuthOptions = {
         const user = await prisma.user.findUnique({
           where: {
             email: credentials.email
+          },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            password: true,
+            roles: true,
           }
         })
 
@@ -48,24 +56,25 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: user.name,
-          role: user.role,
+          roles: user.roles,
         }
       }
     })
   ],
   callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id
+        token.roles = user.roles
+      }
+      return token
+    },
     async session({ session, token }) {
-      if (token) {
-        session.user.id = token.sub!
-        session.user.role = token.role as string
+      if (session?.user) {
+        session.user.id = token.id as string
+        session.user.roles = token.roles as string[]
       }
       return session
     },
-    async jwt({ token, user }) {
-      if (user) {
-        token.role = user.role
-      }
-      return token
-    }
   }
 } 

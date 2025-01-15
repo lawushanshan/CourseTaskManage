@@ -39,26 +39,41 @@ const nextConfig = {
         'aws-crt': false,
       }
     }
+
+    // 添加对 .md 文件的支持
+    config.module.rules.push({
+      test: /\.md$/,
+      use: 'raw-loader'
+    })
+
     return config
   },
-  headers() {
+  async headers() {
     return [
       {
-        source: '/(.*)',
+        source: '/api/:path*',
         headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
-          },
+          { key: 'Access-Control-Allow-Credentials', value: 'true' },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,DELETE,PATCH,POST,PUT' },
+          { key: 'Access-Control-Allow-Headers', value: 'Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date' },
         ],
+      },
+    ]
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: '/api/:path*',
+      },
+      {
+        source: '/teacher/courses',
+        destination: '/courses/teacher',
+      },
+      {
+        source: '/teacher/courses/:path*',
+        destination: '/courses/teacher/:path*',
       },
     ]
   },

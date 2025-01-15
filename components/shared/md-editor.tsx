@@ -2,7 +2,6 @@
 
 import dynamic from 'next/dynamic'
 import '@uiw/react-md-editor/markdown-editor.css'
-import '@uiw/react-markdown-preview/markdown.css'
 
 const MDEditorComponent = dynamic(
   () => import('@uiw/react-md-editor').then((mod) => mod.default),
@@ -10,22 +9,20 @@ const MDEditorComponent = dynamic(
 )
 
 interface MDEditorProps {
-  value?: string
-  onChange?: (value?: string) => void
-  placeholder?: string
+  value: string
+  onChange: (value?: string) => void
+  preview?: 'live' | 'edit' | 'preview'
+  height?: number
 }
 
-export function MDEditor({ value, onChange, placeholder }: MDEditorProps) {
+export function MDEditor({ value, onChange, preview = 'live', height = 200 }: MDEditorProps) {
   return (
     <div data-color-mode="light">
       <MDEditorComponent
         value={value}
         onChange={onChange}
-        preview="edit"
-        height={200}
-        placeholder={placeholder}
-        toolbarHeight={40}
-        enableScroll={true}
+        preview={preview}
+        height={height}
       />
     </div>
   )

@@ -3,39 +3,50 @@
 import { useState } from 'react'
 import { Form, Input, Select, Button, message } from 'antd'
 import { useRouter } from 'next/navigation'
-import { MDEditor } from '@/components/shared/md-editor'
+import { useSession } from 'next-auth/react'
+import { createCourse, updateCourse } from '@/app/actions/courses'
+import { CourseFormData } from '@/types/course'
+import { COURSE_LEVELS, COURSE_LEVEL_LABELS } from '@/constants/enums'
 
-interface CourseFormData {
-  title: string
-  description: string
-  category: string
-  level: string
-  learningObjectives: string
-  prerequisites: string
+interface CourseFormProps {
+  initialValues?: CourseFormData
+  mode?: 'create' | 'edit'
 }
 
-export function CourseForm() {
+export function CourseForm({ initialValues, mode = 'create' }: CourseFormProps) {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const { data: session } = useSession()
 
   const onFinish = async (values: CourseFormData) => {
+    console.log('=== Form Submit ===')
+    console.log('Values:', values)
+    
+    if (!session) {
+      message.error('请先登录')
+      return
+    }
+
+    // 确保必填字段存在
+    if (!values.title || !values.description || !values.category || !values.level) {
+      message.error('请填写必要信息')
+      return
+    }
+
     setLoading(true)
     try {
-      const response = await fetch('/api/courses', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
-      })
-
-      if (!response.ok) {
-        throw new Error('创建课程失败')
+      if (mode === 'edit' && initialValues?.id) {
+        const course = await updateCourse(initialValues.id, values)
+        message.success('课程更新成功！')
+        router.push(`/courses/${course.id}/edit`)
+      } else {
+        const course = await createCourse(values)
+        message.success('课程创建成功！')
+        router.push(`/courses/${course.id}/edit`)
       }
-
-      const data = await response.json()
-      message.success('课程创建成功！')
-      router.push(`/courses/${data.id}/edit`)
     } catch (error) {
-      message.error('创建课程失败，请重试')
+      console.error('Course operation error:', error)
+      message.error(error instanceof Error ? error.message : '操作失败，请重试')
     } finally {
       setLoading(false)
     }
@@ -45,6 +56,7 @@ export function CourseForm() {
     <Form
       layout="vertical"
       onFinish={onFinish}
+      initialValues={initialValues}
       className="space-y-6"
     >
       <Form.Item
@@ -82,30 +94,17 @@ export function CourseForm() {
         rules={[{ required: true, message: '请选择难度等级' }]}
       >
         <Select placeholder="选择难度等级">
-          <Select.Option value="BEGINNER">入门</Select.Option>
-          <Select.Option value="INTERMEDIATE">进阶</Select.Option>
-          <Select.Option value="ADVANCED">高级</Select.Option>
+          {Object.entries(COURSE_LEVEL_LABELS).map(([value, label]) => (
+            <Select.Option key={value} value={value}>
+              {label}
+            </Select.Option>
+          ))}
         </Select>
-      </Form.Item>
-
-      <Form.Item
-        name="learningObjectives"
-        label="学习目标"
-        rules={[{ required: true, message: '请输入学习目标' }]}
-      >
-        <MDEditor placeholder="通过本课程你将学习到什么？" />
-      </Form.Item>
-
-      <Form.Item
-        name="prerequisites"
-        label="预备知识"
-      >
-        <MDEditor placeholder="学习本课程需要哪些基础知识？" />
       </Form.Item>
 
       <Form.Item>
         <Button type="primary" htmlType="submit" loading={loading}>
-          创建课程
+          {mode === 'edit' ? '更新课程' : '创建课程'}
         </Button>
       </Form.Item>
     </Form>
